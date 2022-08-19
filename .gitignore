@@ -26,3 +26,5 @@ env/
 # IDE workspace settings
 .vscode/
 .idea/
+
+screen-logs.txt
