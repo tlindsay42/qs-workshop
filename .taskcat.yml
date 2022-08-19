@@ -1,0 +1,19 @@
+project:
+  name: qs-workshop
+  regions:
+    - ap-southeast-1
+    - us-east-1
+    - us-west-2
+    - eu-central-1
+tests:
+  default:
+    template: ./templates/main.template.yaml
+    regions:
+      - us-east-1
+    parameters:
+      AvailabilityZones: $[taskcat_getaz_2]
+      EmailAddress: --override--
+      WebserverCIDR: 0.0.0.0/0
+      QSS3KeyPrefix: "qs-workshop/"
+      QSS3BucketRegion: $[taskcat_current_region]
+      QSS3BucketName: $[taskcat_autobucket]
