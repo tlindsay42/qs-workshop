@@ -118,7 +118,7 @@ Parameters:
       https://aws-quickstart.github.io/option1.html.
     AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
-    Default: implementing/
+    Default: qs-workshop/
   WebserverCIDR:
     Type: String
     Description: Allowed CIDR block for webserver access.
