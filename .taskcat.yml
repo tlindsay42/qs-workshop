@@ -1,6 +1,6 @@
 project:
   name: qs-workshop
-  template: templates/main.template.yaml
+  template: templates/web-entrypoint-new-vpc.template.yaml
   regions:
     - ap-southeast-1
     - eu-central-1
