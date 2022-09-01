@@ -88,8 +88,8 @@ Parameters:
       letters, hyphens (-), and forward slash (/).
     Default: qs-workshop/
   PublicSubnet1ID:
-    Description: Public Subnet Id 1
-    Type: 'AWS::EC2::Subnet::Id'
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet ID 1.
   PublicSubnet2ID:
     Description: Public Subnet Id 2
     Type: 'AWS::EC2::Subnet::Id'
