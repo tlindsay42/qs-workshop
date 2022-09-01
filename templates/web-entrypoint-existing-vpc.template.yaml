@@ -97,58 +97,85 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     AMI:
+      US2004HVM: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20220810
       US2204HVM: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20220810
     af-south-1:
+      US2004HVM: ami-0e91504a4ef60f7bf
       US2204HVM: ami-0fc15bb8176c9da0d
     ap-east-1:
+      US2004HVM: ami-0f1b5e9a7f3332b50
       US2204HVM: ami-08ee76a49b984e49e
     ap-northeast-1:
+      US2004HVM: ami-00cd31d940a501cdf
       US2204HVM: ami-01efc46997d464780
     ap-northeast-2:
+      US2004HVM: ami-08f869ae259b6bc98
       US2204HVM: ami-0f8404a7dd892ff25
     ap-northeast-3:
+      US2004HVM: ami-0a34ec17b84310c85
       US2204HVM: ami-0fa94f39b906bd429
     ap-south-1:
+      US2004HVM: ami-03ecc40f38fab4ee4
       US2204HVM: ami-0d044385bb8ef5481
     ap-southeast-1:
+      US2004HVM: ami-0dd1e66116f7975b8
       US2204HVM: ami-0746974430e590fc4
     ap-southeast-2:
+      US2004HVM: ami-02e8cbf7681c3ae51
       US2204HVM: ami-00950ca57b4b9b45e
     ap-southeast-3:
+      US2004HVM: ami-0a23cbff9db6a5c61
       US2204HVM: ami-0246cfac406c84c84
     ca-central-1:
+      US2004HVM: ami-055e6aa7e2dea0270
       US2204HVM: ami-069a201764f292940
     eu-central-1:
+      US2004HVM: ami-05210ba6bdf75db36
       US2204HVM: ami-03f87e9ce1bec353f
     eu-north-1:
+      US2004HVM: ami-0239d9dda8e0b2252
       US2204HVM: ami-0a2b8744b4fe77f92
     eu-south-1:
+      US2004HVM: ami-06e911d144bcbfed9
       US2204HVM: ami-07760fec60a3f6074
     eu-west-1:
+      US2004HVM: ami-07702eb3b2ef420a9
       US2204HVM: ami-08a9dc8f6d1c4f806
     eu-west-2:
+      US2004HVM: ami-01a43c77bfaa6eaf5
       US2204HVM: ami-08bb1f8247aac1890
     eu-west-3:
+      US2004HVM: ami-04f862d90d8e4ebfc
       US2204HVM: ami-011eaee8f509eadb7
     me-south-1:
+      US2004HVM: ami-06d428edde13e03ee
       US2204HVM: ami-032fa06690a490f3e
     sa-east-1:
+      US2004HVM: ami-0590cab2c6f58ba4d
       US2204HVM: ami-06133fccf54d4182e
     us-east-1:
+      US2004HVM: ami-0cf6c10214cc015c9
       US2204HVM: ami-0a24ce26f4e187f9a
     us-east-2:
+      US2004HVM: ami-0a44592ea519a9186
       US2204HVM: ami-0a5e8065e5b04c679
     us-west-1:
+      US2004HVM: ami-08241a3d2574c62ed
       US2204HVM: ami-013f213830a8913ae
     us-west-2:
+      US2004HVM: ami-00bb3d0b5b36e89b8
       US2204HVM: ami-06f29effee622eb00
     us-gov-east-1:
+      US2004HVM: ami-dee008af
       US2204HVM: ami-0efd49eddc5639cc5
     us-gov-west-1:
+      US2004HVM: ami-84556de5
       US2204HVM: ami-061efa908c09c5409
     cn-north-1:
+      US2004HVM: ami-0ee7de898385f3816
       US2204HVM: ami-06ef60fb6cceb0b24
     cn-northwest-1:
+      US2004HVM: ami-08e0c0a54f075c9bc
       US2204HVM: ami-01613a9d7c23f704e
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
@@ -205,14 +232,16 @@ Resources:
               command: /etc/init.d/nginx start
     Properties:
       KeyName: !Ref KeyPairName
-      ImageId: !FindInMap [AWSAMIRegionMap, !Ref AWS::Region, US2204HVM]
+      ImageId: !FindInMap [AWSAMIRegionMap, !Ref AWS::Region, US2004HVM]
       InstanceType: !Ref InstanceType
       SecurityGroups:
         - !Ref WebServerSecurityGroup
       UserData:
         Fn::Base64: !Sub
-          - >
-            #!/bin/bash -x
+          - |
+            #!/bin/bash
+
+            set -x
 
             cfn_fail() {
               cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource WebServerGroup
@@ -233,7 +262,7 @@ Resources:
             popd
             echo "[Loaded: Load QuickStart Common Utils]"
 
-            echo \'[Update Operating System]\'
+            echo "[Update Operating System]"
             qs_update-os || qs_err
             qs_bootstrap_pip || qs_err
             qs_aws-cfn-bootstrap || qs_err
