@@ -91,8 +91,8 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: Public subnet ID 1.
   PublicSubnet2ID:
-    Description: Public Subnet Id 2
-    Type: 'AWS::EC2::Subnet::Id'
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet ID 2.
   VPCID:
     Description: 'ID of the VPC (e.g., vpc-0343606e)'
     Type: 'AWS::EC2::VPC::Id'
