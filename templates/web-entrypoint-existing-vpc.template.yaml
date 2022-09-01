@@ -94,8 +94,8 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: Public subnet ID 2.
   VPCID:
-    Description: 'ID of the VPC (e.g., vpc-0343606e)'
-    Type: 'AWS::EC2::VPC::Id'
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID.
 Mappings:
   AWSAMIRegionMap:
     AMI:
