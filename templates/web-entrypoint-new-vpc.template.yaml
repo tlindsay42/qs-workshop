@@ -117,7 +117,9 @@ Parameters:
       https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html and
       https://aws-quickstart.github.io/option1.html.
     AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
     Default: qs-workshop/
   WebserverCIDR:
     Type: String
