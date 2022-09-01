@@ -99,35 +99,59 @@ Parameters:
 Mappings:
   AWSAMIRegionMap:
     AMI:
-      US1604HVM: ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180405
+      US1604HVM: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20220810
+    af-south-1:
+      US2204HVM: ami-0fc15bb8176c9da0d
+    ap-east-1:
+      US2204HVM: ami-08ee76a49b984e49e
     ap-northeast-1:
-      US1604HVM: ami-60a4b21c
+      US2204HVM: ami-01efc46997d464780
     ap-northeast-2:
-      US1604HVM: ami-633d920d
+      US2204HVM: ami-0f8404a7dd892ff25
+    ap-northeast-3:
+      US2204HVM: ami-0fa94f39b906bd429
     ap-south-1:
-      US1604HVM: ami-dba580b4
+      US2204HVM: ami-0d044385bb8ef5481
     ap-southeast-1:
-      US1604HVM: ami-82c9ecfe
+      US2204HVM: ami-0746974430e590fc4
     ap-southeast-2:
-      US1604HVM: ami-2b12dc49
+      US2204HVM: ami-00950ca57b4b9b45e
+    ap-southeast-3:
+      US2204HVM: ami-0246cfac406c84c84
     ca-central-1:
-      US1604HVM: ami-9d7afcf9
+      US2204HVM: ami-069a201764f292940
     eu-central-1:
-      US1604HVM: ami-cd491726
+      US2204HVM: ami-03f87e9ce1bec353f
+    eu-north-1:
+      US2204HVM: ami-0a2b8744b4fe77f92
+    eu-south-1:
+      US2204HVM: ami-07760fec60a3f6074
     eu-west-1:
-      US1604HVM: ami-74e6b80d
+      US2204HVM: ami-08a9dc8f6d1c4f806
     eu-west-2:
-      US1604HVM: ami-506e8f37
+      US2204HVM: ami-08bb1f8247aac1890
+    eu-west-3:
+      US2204HVM: ami-011eaee8f509eadb7
+    me-south-1:
+      US2204HVM: ami-032fa06690a490f3e
     sa-east-1:
-      US1604HVM: ami-5782d43b
+      US2204HVM: ami-06133fccf54d4182e
     us-east-1:
-      US1604HVM: ami-6dfe5010
+      US2204HVM: ami-0a24ce26f4e187f9a
     us-east-2:
-      US1604HVM: ami-e82a1a8d
+      US2204HVM: ami-0a5e8065e5b04c679
     us-west-1:
-      US1604HVM: ami-493f2f29
+      US2204HVM: ami-013f213830a8913ae
     us-west-2:
-      US1604HVM: ami-ca89eeb2
+      US2204HVM: ami-06f29effee622eb00
+    us-gov-east-1:
+      US2204HVM: ami-0efd49eddc5639cc5
+    us-gov-west-1:
+      US2204HVM: ami-061efa908c09c5409
+    cn-north-1:
+      US2204HVM: ami-06ef60fb6cceb0b24
+    cn-northwest-1:
+      US2204HVM: ami-01613a9d7c23f704e
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
 Resources:
