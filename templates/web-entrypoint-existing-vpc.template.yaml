@@ -1,0 +1,366 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+   CloudFormation template for deploying a NGINX web server in an
+   auto-scaling group behind an application load balancer in an existing VPC.
+   (qs-abcde2)
+Parameters:
+  InstanceType:
+    Type: String
+    Description: EC2 instance type
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - r4.large
+      - r4.xlarge
+      - r4.2xlarge
+      - r4.4xlarge
+      - r4.8xlarge
+    ConstraintDescription: must be a valid EC2 instance type.
+    Default: t2.medium
+  EmailAddress:
+    Type: String
+    Description: Email Address for notification.
+    AllowedPattern: ^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$
+    ConstraintDescription: Must be a valid email address.
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Name of an existing EC2 KeyPair.
+  WebserverCIDR:
+    Type: String
+    Description: Allowed CIDR block for webserver access.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+  QSS3BucketName:
+    Type: String
+    Description: >-
+      Name of the S3 bucket for your copy of the Quick Start assets. Keep the
+      default name unless you are customizing the template. Changing the name
+      updates code references to point to a new Quick Start location. This name
+      can include numbers, lowercase letters, and hyphens, but do not start or
+      end with a hyphen (-). For more information, refer to
+      https://aws-quickstart.github.io/option1.html.
+    MinLength: 3
+    MaxLength: 63
+    AllowedPattern: ^[0-9a-z]+([0-9a-z-]*[0-9a-z])*$
+    ConstraintDescription: >-
+      The Quick Start bucket name can include numbers, lowercase letters,
+      uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+  QSS3BucketRegion:
+    Type: String
+    Description: >-
+      AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted.
+      Keep the default Region unless you are customizing the template. Changing
+      this Region updates code references to point to a new Quick Start
+      location. When using your own bucket, specify the Region. For more
+      information, refer to https://aws-quickstart.github.io/option1.html.
+    Default: us-east-1
+  QSS3KeyPrefix:
+    Type: String
+    Description: >-
+      S3 key prefix that is used to simulate a directory for your copy of the
+      Quick Start assets. Keep the default prefix unless you are customizing
+      the template. Changing this prefix updates code references to point to a
+      new Quick Start location. This prefix can include numbers, lowercase
+      letters, uppercase letters, hyphens (-), and forward slashes (/). End
+      with a forward slash. For more information, refer to
+      https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html and
+      https://aws-quickstart.github.io/option1.html.
+    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Default: qs-workshop/
+  PublicSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet ID 1.
+  PublicSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet ID 2.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID.
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      US2004HVM: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20220810
+      US2204HVM: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20220810
+    af-south-1:
+      US2004HVM: ami-0e91504a4ef60f7bf
+      US2204HVM: ami-0fc15bb8176c9da0d
+    ap-east-1:
+      US2004HVM: ami-0f1b5e9a7f3332b50
+      US2204HVM: ami-08ee76a49b984e49e
+    ap-northeast-1:
+      US2004HVM: ami-00cd31d940a501cdf
+      US2204HVM: ami-01efc46997d464780
+    ap-northeast-2:
+      US2004HVM: ami-08f869ae259b6bc98
+      US2204HVM: ami-0f8404a7dd892ff25
+    ap-northeast-3:
+      US2004HVM: ami-0a34ec17b84310c85
+      US2204HVM: ami-0fa94f39b906bd429
+    ap-south-1:
+      US2004HVM: ami-03ecc40f38fab4ee4
+      US2204HVM: ami-0d044385bb8ef5481
+    ap-southeast-1:
+      US2004HVM: ami-0dd1e66116f7975b8
+      US2204HVM: ami-0746974430e590fc4
+    ap-southeast-2:
+      US2004HVM: ami-02e8cbf7681c3ae51
+      US2204HVM: ami-00950ca57b4b9b45e
+    ap-southeast-3:
+      US2004HVM: ami-0a23cbff9db6a5c61
+      US2204HVM: ami-0246cfac406c84c84
+    ca-central-1:
+      US2004HVM: ami-055e6aa7e2dea0270
+      US2204HVM: ami-069a201764f292940
+    eu-central-1:
+      US2004HVM: ami-05210ba6bdf75db36
+      US2204HVM: ami-03f87e9ce1bec353f
+    eu-north-1:
+      US2004HVM: ami-0239d9dda8e0b2252
+      US2204HVM: ami-0a2b8744b4fe77f92
+    eu-south-1:
+      US2004HVM: ami-06e911d144bcbfed9
+      US2204HVM: ami-07760fec60a3f6074
+    eu-west-1:
+      US2004HVM: ami-07702eb3b2ef420a9
+      US2204HVM: ami-08a9dc8f6d1c4f806
+    eu-west-2:
+      US2004HVM: ami-01a43c77bfaa6eaf5
+      US2204HVM: ami-08bb1f8247aac1890
+    eu-west-3:
+      US2004HVM: ami-04f862d90d8e4ebfc
+      US2204HVM: ami-011eaee8f509eadb7
+    me-south-1:
+      US2004HVM: ami-06d428edde13e03ee
+      US2204HVM: ami-032fa06690a490f3e
+    sa-east-1:
+      US2004HVM: ami-0590cab2c6f58ba4d
+      US2204HVM: ami-06133fccf54d4182e
+    us-east-1:
+      US2004HVM: ami-0cf6c10214cc015c9
+      US2204HVM: ami-0a24ce26f4e187f9a
+    us-east-2:
+      US2004HVM: ami-0a44592ea519a9186
+      US2204HVM: ami-0a5e8065e5b04c679
+    us-west-1:
+      US2004HVM: ami-08241a3d2574c62ed
+      US2204HVM: ami-013f213830a8913ae
+    us-west-2:
+      US2004HVM: ami-00bb3d0b5b36e89b8
+      US2204HVM: ami-06f29effee622eb00
+    us-gov-east-1:
+      US2004HVM: ami-dee008af
+      US2204HVM: ami-0efd49eddc5639cc5
+    us-gov-west-1:
+      US2004HVM: ami-84556de5
+      US2204HVM: ami-061efa908c09c5409
+    cn-north-1:
+      US2004HVM: ami-0ee7de898385f3816
+      US2204HVM: ami-06ef60fb6cceb0b24
+    cn-northwest-1:
+      US2004HVM: ami-08e0c0a54f075c9bc
+      US2204HVM: ami-01613a9d7c23f704e
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
+Resources:
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref EmailAddress
+          Protocol: email
+  WebServerGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet1ID
+        - !Ref PublicSubnet2ID
+      LaunchConfigurationName: !Ref WebServerLaunchConfig
+      MinSize: 2
+      MaxSize: 8
+      TargetGroupARNs:
+        - !Ref ALBTargetGroup
+      NotificationConfigurations:
+        - TopicARN: !Ref NotificationTopic
+          NotificationTypes:
+            - autoscaling:EC2_INSTANCE_LAUNCH
+            - autoscaling:EC2_INSTANCE_LAUNCH_ERROR
+            - autoscaling:EC2_INSTANCE_TERMINATE
+            - autoscaling:EC2_INSTANCE_TERMINATE_ERROR
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+        Count: 1
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 1
+        PauseTime: PT15M
+        WaitOnResourceSignals: true
+  WebServerLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          webserver_install:
+            - config-webserver
+            - run_service-webserver
+        config-webserver:
+          packages:
+            apt:
+              nginx: []
+        run_service-webserver:
+          commands:
+            start_weberver:
+              command: /etc/init.d/nginx start
+    Properties:
+      KeyName: !Ref KeyPairName
+      ImageId: !FindInMap [AWSAMIRegionMap, !Ref AWS::Region, US2004HVM]
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+        - !Ref WebServerSecurityGroup
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash
+
+            set -x
+
+            cfn_fail() {
+              cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource WebServerGroup
+              exit 1
+            }
+
+            cfn_success() {
+              cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource WebServerGroup
+              exit 0
+            }
+
+            S3URI=https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}
+
+            echo "[Cloning: Load QuickStart Common Utils]"
+            pushd /tmp
+            wget https://raw.githubusercontent.com/aws-quickstart/quickstart-linux-utilities/main/quickstart-cfn-tools.source
+            source ./quickstart-cfn-tools.source
+            popd
+            echo "[Loaded: Load QuickStart Common Utils]"
+
+            echo "[Update Operating System]"
+            qs_update-os || qs_err
+            qs_bootstrap_pip || qs_err
+            qs_aws-cfn-bootstrap || qs_err
+
+            cfn-init -v --stack ${AWS::StackName} --resource WebServerLaunchConfig --configsets webserver_install --region ${AWS::Region} || cfn_fail
+
+            # Signal cfn-init (final check)
+
+            [ $(qs_status) == 0 ] && cfn_success || cfn_fail
+          - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+  WebServerScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref WebServerGroup
+      Cooldown: 60
+      ScalingAdjustment: 1
+  WebServerScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref WebServerGroup
+      Cooldown: 60
+      ScalingAdjustment: -1
+  WebServerCPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-up if CPU > 90% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 90
+      AlarmActions:
+        - !Ref WebServerScaleUpPolicy
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref WebServerGroup
+      ComparisonOperator: GreaterThanThreshold
+  WebServerCPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-down if CPU < 70% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 70
+      AlarmActions:
+        - !Ref WebServerScaleDownPolicy
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref WebServerGroup
+      ComparisonOperator: LessThanThreshold
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !Ref PublicSubnet1ID
+        - !Ref PublicSubnet2ID
+      SecurityGroups:
+        - !Ref WebServerSecurityGroup
+      Tags:
+        - Key: name
+          Value:  WebServer ASG Instance
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCID
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP from the load balancer only
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref WebserverCIDR
+      VpcId: !Ref VPCID
+Outputs:
+  URL:
+    Description: The URL of WebServer
+    Value: !Sub http://${ApplicationLoadBalancer.DNSName}
