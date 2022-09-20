@@ -4,6 +4,23 @@ Description: >-
    CloudFormation template for deploying a NGINX web server in an
    auto-scaling group behind an application load balancer in a new VPC.
    (qs-abcde1)
+Metadata:
+  LICENSE: Apache License, Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: AWS Quick Start Configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3BucketRegion
+          - QSS3KeyPrefix
+    ParameterLabels:
+      QSS3BucketName:
+        default: Name
+      QSS3BucketRegion:
+        default: Region
+      QSS3KeyPrefix:
+        default: Key prefix
 Parameters:
   EmailAddress:
     Type: String
