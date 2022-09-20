@@ -10,7 +10,7 @@ project:
     AvailabilityZones: $[taskcat_getaz_2]
     EmailAddress: --override--
     KeyPairName: --override--
-    WebserverCIDR: 0.0.0.0/0
+    WebServerCidr: 0.0.0.0/0
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
 tests:
