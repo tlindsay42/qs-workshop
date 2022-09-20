@@ -9,6 +9,12 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: Web server configuration
+        Parameters:
+          - KeyPairName
+          - InstanceType
+          - WebserverCIDR
+      - Label:
           default: Network configuration
         Parameters:
           - AvailabilityZones
@@ -24,6 +30,12 @@ Metadata:
           - QSS3BucketRegion
           - QSS3KeyPrefix
     ParameterLabels:
+      InstanceType:
+        default: Instance type
+      KeyPairName:
+        default: Key pair name
+      WebserverCIDR:
+        default: Web server CIDR
       AvailabilityZones:
         default: Availability Zones
       PrivateSubnet1CIDR:
