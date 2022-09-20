@@ -93,7 +93,7 @@ Parameters:
     Default: t2.medium
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: Name of an existing EC2 KeyPair.
+    Description: Name of an existing EC2 key pair.
   PrivateSubnet1CIDR:
     Type: String
     Description: >-

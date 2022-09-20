@@ -54,7 +54,7 @@ Parameters:
     ConstraintDescription: Must be a valid email address.
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: Name of an existing EC2 KeyPair.
+    Description: Name of an existing EC2 key pair.
   WebserverCIDR:
     Type: String
     Description: Allowed CIDR block for webserver access.
