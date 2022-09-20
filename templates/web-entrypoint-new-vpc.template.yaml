@@ -57,7 +57,7 @@ Metadata:
 Parameters:
   EmailAddress:
     Type: String
-    Description: Email Address for notification.
+    Description: Email address for notifications.
     AllowedPattern: ^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$
     ConstraintDescription: Must be a valid email address.
   AvailabilityZones:
