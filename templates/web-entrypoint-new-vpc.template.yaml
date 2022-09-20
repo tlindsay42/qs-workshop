@@ -9,12 +9,45 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: AWS Quick Start Configuration
+          default: Web server configuration
+        Parameters:
+          - KeyPairName
+          - InstanceType
+          - WebserverCIDR
+      - Label:
+          default: Network configuration
+        Parameters:
+          - AvailabilityZones
+          - VPCCIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+      - Label:
+          default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
           - QSS3BucketRegion
           - QSS3KeyPrefix
     ParameterLabels:
+      InstanceType:
+        default: Instance type
+      KeyPairName:
+        default: Key pair name
+      WebserverCIDR:
+        default: Web server CIDR
+      AvailabilityZones:
+        default: Availability Zones
+      PrivateSubnet1CIDR:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2CIDR:
+        default: Private subnet 2 CIDR
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      VPCCIDR:
+        default: VPC CIDR
       QSS3BucketName:
         default: Name
       QSS3BucketRegion:
@@ -60,7 +93,7 @@ Parameters:
     Default: t2.medium
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: Name of an existing EC2 KeyPair.
+    Description: Name of an existing EC2 key pair.
   PrivateSubnet1CIDR:
     Type: String
     Description: >-
